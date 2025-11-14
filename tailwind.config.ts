@@ -47,6 +47,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      backgroundImage: {
+        'hero-gradient': 'var(--hero-gradient)',
+      },
+      boxShadow: {
+        'card': 'var(--card-shadow)',
+        'card-hover': 'var(--card-shadow-hover)',
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
