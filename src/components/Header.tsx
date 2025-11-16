@@ -24,7 +24,7 @@ const Header = () => {
           {/* logo image added */}
             <img 
             src="/logo.jpeg" 
-            alt="OptimizGrant Logo"
+            alt=""
             className="h-8 w-8 object-contain" // Adjust size as needed
           />
           <span className="text-2xl font-bold text-primary">OptimizGrant</span>
