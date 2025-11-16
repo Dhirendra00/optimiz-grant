@@ -21,7 +21,12 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center space-x-2">
-          <img src="./c05fc10f-c26b-47f4-bc57-26054e24e08f.jpeg"/>
+          {/* logo image added */}
+            <img 
+            src="/c05fc10f-c26b-47f4-bc57-26054e24e08f.jpeg" 
+            alt="OptimizGrant Logo"
+            className="h-8 w-8 object-contain" // Adjust size as needed
+          />
           <span className="text-2xl font-bold text-primary">OptimizGrant</span>
         </Link>
 
