@@ -23,7 +23,7 @@ const Header = () => {
         <Link to="/" className="flex items-center space-x-2">
           {/* logo image added */}
             <img 
-            src="/c05fc10f-c26b-47f4-bc57-26054e24e08f.jpeg" 
+            src="/logo.jpeg" 
             alt="OptimizGrant Logo"
             className="h-8 w-8 object-contain" // Adjust size as needed
           />
