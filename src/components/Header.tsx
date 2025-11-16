@@ -22,11 +22,11 @@ const Header = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center space-x-2">
           {/* logo image added */}
-            <img 
+            {/* <img 
             src="/logo.jpeg" 
             alt=""
             className="h-8 w-8 object-contain" // Adjust size as needed
-          />
+          /> */}
           <span className="text-2xl font-bold text-primary">OptimizGrant</span>
         </Link>
 
