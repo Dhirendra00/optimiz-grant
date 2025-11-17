@@ -23,7 +23,14 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (requiredRole && userRole !== requiredRole) {
-    return <Navigate to={userRole === "admin" ? "/admin" : "/dashboard"} replace />;
+    // Redirect based on user's actual role
+    if (userRole === "admin") {
+      return <Navigate to="/admin" replace />;
+    } else if (userRole === "consultant") {
+      return <Navigate to="/dashboard" replace />;
+    } else {
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;
