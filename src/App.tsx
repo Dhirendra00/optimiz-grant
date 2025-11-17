@@ -16,6 +16,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import CMSDashboard from "./pages/admin/CMSDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,18 +42,26 @@ const App = () => (
             <Route 
               path="/dashboard" 
               element={
-                <ProtectedRoute requiredRole="user">
+                <ProtectedRoute requiredRole="organization">
                   <UserDashboard />
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/admin" 
+            <Route
+              path="/admin"
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminDashboard />
                 </ProtectedRoute>
-              } 
+              }
+            />
+            <Route
+              path="/admin/cms"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <CMSDashboard />
+                </ProtectedRoute>
+              }
             />
             <Route path="*" element={<NotFound />} />
           </Routes>

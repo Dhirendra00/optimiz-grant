@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Users, Building2, FileCheck, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Users, Building2, FileCheck, AlertCircle, FileText } from "lucide-react";
 
 const AdminDashboard = () => {
   const { user, signOut } = useAuth();
@@ -66,7 +67,25 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Content Management</CardTitle>
+              <CardDescription>Manage website content</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Link to="/admin/cms">
+                <Button className="w-full" variant="outline">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Open CMS
+                </Button>
+              </Link>
+              <p className="text-sm text-muted-foreground">
+                Manage blog posts, grants, team members, jobs, and more
+              </p>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>User Management</CardTitle>
