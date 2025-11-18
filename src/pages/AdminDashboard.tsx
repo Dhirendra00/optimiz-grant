@@ -92,9 +92,15 @@ const AdminDashboard = () => {
               <CardDescription>Manage user accounts and permissions</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button className="w-full" variant="outline">View All Users</Button>
-              <Button className="w-full" variant="outline">Manage Roles</Button>
-              <Button className="w-full" variant="outline">User Activity Logs</Button>
+              <Link to="/admin/users">
+                <Button className="w-full" variant="outline">
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Users
+                </Button>
+              </Link>
+              <p className="text-sm text-muted-foreground">
+                View, edit, and manage all user accounts and roles
+              </p>
             </CardContent>
           </Card>
 
