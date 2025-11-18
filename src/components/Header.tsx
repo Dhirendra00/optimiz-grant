@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.jpeg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,13 +21,12 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center space-x-2">
-          {/* logo image added */}
-            {/* <img 
-            src="/logo.jpeg" 
-            alt=""
-            className="h-8 w-8 object-contain" // Adjust size as needed
-          /> */}
+        <Link to="/" className="flex items-center space-x-3">
+          <img 
+            src={logo} 
+            alt="OptimizGrant Logo"
+            className="h-10 w-10 object-contain"
+          />
           <span className="text-2xl font-bold text-primary">OptimizGrant</span>
         </Link>
 
