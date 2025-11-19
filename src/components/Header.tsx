@@ -25,7 +25,7 @@ const Header = () => {
           <img 
             src={logo} 
             alt="OptimizGrant Logo"
-            className="h-10 w-10 object-contain"
+            className="h-10 w-10 object-contain rounded-full"
           />
           <span className="text-2xl font-bold text-primary">OptimizGrant</span>
         </Link>
