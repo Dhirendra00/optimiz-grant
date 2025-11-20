@@ -18,6 +18,7 @@ import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import CMSDashboard from "./pages/admin/CMSDashboard";
 import UserManagement from "./pages/admin/UserManagement";
+import InviteManagement from "./pages/admin/InviteManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,14 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRole="admin">
                   <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/invites"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <InviteManagement />
                 </ProtectedRoute>
               }
             />

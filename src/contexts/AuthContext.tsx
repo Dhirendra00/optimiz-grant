@@ -9,7 +9,7 @@ interface AuthContextType {
   userRole: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, inviteCode?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -75,20 +75,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
+  const signUp = async (email: string, password: string, fullName: string, inviteCode?: string) => {
+    try {
+      // If invite code provided, validate it first
+      if (inviteCode) {
+        const { data: inviteData, error: inviteError } = await supabase
+          .from("invite_codes")
+          .select("*")
+          .eq("code", inviteCode)
+          .eq("used", false)
+          .single();
+
+        if (inviteError || !inviteData) {
+          return { error: { message: "Invalid or expired invite code" } };
+        }
+
+        if (inviteData.expires_at && new Date(inviteData.expires_at) < new Date()) {
+          return { error: { message: "Invite code has expired" } };
+        }
+      }
+
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            invite_code: inviteCode,
+          },
         },
-      },
-    });
-    return { error };
+      });
+
+      // If signup successful and invite code provided, consume it
+      if (!error && data.user && inviteCode) {
+        const { error: consumeError } = await supabase.rpc(
+          "validate_and_consume_invite",
+          {
+            _code: inviteCode,
+            _user_id: data.user.id,
+          }
+        );
+
+        if (consumeError) {
+          console.error("Error consuming invite code:", consumeError);
+        }
+      }
+
+      return { error };
+    } catch (err: any) {
+      return { error: err };
+    }
   };
 
   const signOut = async () => {

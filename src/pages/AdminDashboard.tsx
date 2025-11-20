@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
-import { Users, Building2, FileCheck, AlertCircle, FileText } from "lucide-react";
+import { Users, Building2, FileCheck, AlertCircle, FileText, Mail } from "lucide-react";
 
 const AdminDashboard = () => {
   const { user, signOut } = useAuth();
@@ -96,6 +96,12 @@ const AdminDashboard = () => {
                 <Button className="w-full" variant="outline">
                   <Users className="mr-2 h-4 w-4" />
                   Manage Users
+                </Button>
+              </Link>
+              <Link to="/admin/invites">
+                <Button className="w-full" variant="outline">
+                  <Mail className="mr-2 h-4 w-4" />
+                  Invite Codes
                 </Button>
               </Link>
               <p className="text-sm text-muted-foreground">

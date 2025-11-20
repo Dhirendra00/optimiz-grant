@@ -14,6 +14,7 @@ const Login = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
   
   const { signIn, signUp, user, userRole } = useAuth();
@@ -55,7 +56,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signUp(signupEmail, signupPassword, fullName);
+    const { error } = await signUp(signupEmail, signupPassword, fullName, inviteCode || undefined);
 
     if (error) {
       toast({
@@ -71,6 +72,7 @@ const Login = () => {
       setSignupEmail("");
       setSignupPassword("");
       setFullName("");
+      setInviteCode("");
     }
 
     setLoading(false);
@@ -155,6 +157,19 @@ const Login = () => {
                     required
                     minLength={6}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="invite-code">Invite Code (Optional)</Label>
+                  <Input
+                    id="invite-code"
+                    type="text"
+                    placeholder="XXXX-XXXX-XXXX"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter an invite code to register with a specific role
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Creating account..." : "Sign Up"}
