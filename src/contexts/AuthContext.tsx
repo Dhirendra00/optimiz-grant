@@ -109,9 +109,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      // If signup successful and invite code provided, consume it
+      // If signup successful and invite code provided, consume it and notify admins
       if (!error && data.user && inviteCode) {
-        const { error: consumeError } = await supabase.rpc(
+        const { data: inviteResult, error: consumeError } = await supabase.rpc(
           "validate_and_consume_invite",
           {
             _code: inviteCode,
@@ -121,6 +121,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (consumeError) {
           console.error("Error consuming invite code:", consumeError);
+        } else if (inviteResult) {
+          // Notify admins about the new registration
+          try {
+            await supabase.functions.invoke("notify-admin-new-user", {
+              body: {
+                userId: data.user.id,
+                userEmail: email,
+                userName: fullName,
+                inviteCode: inviteCode,
+                assignedRole: inviteResult,
+              },
+            });
+          } catch (notifyError) {
+            console.error("Error notifying admins:", notifyError);
+            // Don't fail signup if notification fails
+          }
         }
       }
 
