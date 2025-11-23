@@ -96,15 +96,15 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <Phone size={16} />
-                <span>+61 (0) 123 456 789</span>
+                <span>+61426086532</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} OptimizGrant. All rights reserved.</p>
-          <p className="mt-2">Glen Waverley, VIC, Australia</p>
+          <p>&copy; {new Date().getFullYear()} OptimizGrant.(Australian Professional Consulting Group Pty Ltd)</p>
+          <p className="mt-2">39 Gwingana Cres, Glen Waverly VIC 3150, Australia</p>
         </div>
       </div>
     </footer>
