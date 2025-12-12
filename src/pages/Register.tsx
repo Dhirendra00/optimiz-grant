@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,35 +69,21 @@ const registrationSchema = z.object({
 type FormData = z.infer<typeof registrationSchema>;
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
-const getInitialFormData = (): FormData => {
-  const defaultData: FormData = {
-    fullName: "",
-    email: "",
-    password: "",
-    phone: "",
-    organizationName: "",
-    organizationType: "",
-    otherOrgType: "",
-    streetAddress: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "AU",
-    servicesRequired: [],
-    termsAccepted: false,
-  };
-
-  try {
-    const savedDraft = localStorage.getItem("registration_draft");
-    if (savedDraft) {
-      const parsed = JSON.parse(savedDraft);
-      return { ...defaultData, ...parsed, password: "", termsAccepted: false };
-    }
-  } catch (e) {
-    console.log("Could not restore draft");
-  }
-  
-  return defaultData;
+const DEFAULT_FORM_DATA: FormData = {
+  fullName: "",
+  email: "",
+  password: "",
+  phone: "",
+  organizationName: "",
+  organizationType: "",
+  otherOrgType: "",
+  streetAddress: "",
+  city: "",
+  state: "",
+  postalCode: "",
+  country: "AU",
+  servicesRequired: [],
+  termsAccepted: false,
 };
 
 const Register = () => {
@@ -107,8 +93,29 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"form" | "verification-sent">("form");
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState<FormData>(getInitialFormData);
-  const isInitialMount = useRef(true);
+  const [formData, setFormData] = useState<FormData>(DEFAULT_FORM_DATA);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Load saved draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem("registration_draft");
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        setFormData(prev => ({
+          ...prev,
+          ...parsed,
+          password: "",
+          termsAccepted: false,
+          servicesRequired: Array.isArray(parsed.servicesRequired) ? parsed.servicesRequired : [],
+        }));
+      }
+    } catch (e) {
+      console.log("Could not restore draft");
+      localStorage.removeItem("registration_draft");
+    }
+    setIsHydrated(true);
+  }, []);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -117,15 +124,12 @@ const Register = () => {
     }
   }, [user, navigate]);
 
-  // Auto-save draft to localStorage (skip initial mount)
+  // Auto-save draft to localStorage (only after hydration)
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
+    if (!isHydrated) return;
     const { password, termsAccepted, ...safeDraft } = formData;
     localStorage.setItem("registration_draft", JSON.stringify(safeDraft));
-  }, [formData]);
+  }, [formData, isHydrated]);
 
   const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -464,7 +468,7 @@ const Register = () => {
                     <div className="space-y-2">
                       <Label htmlFor="organizationType">Type of Organization *</Label>
                       <Select
-                        value={formData.organizationType}
+                        value={formData.organizationType || undefined}
                         onValueChange={value => updateField("organizationType", value)}
                       >
                         <SelectTrigger className={errors.organizationType ? "border-destructive" : ""}>
