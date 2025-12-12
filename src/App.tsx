@@ -14,6 +14,7 @@ import Opportunities from "./pages/Opportunities";
 import Contact from "./pages/Contact";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import VerifyEmail from "./pages/VerifyEmail";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import CMSDashboard from "./pages/admin/CMSDashboard";
@@ -32,6 +33,8 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="services" element={<Services />} />
@@ -39,7 +42,6 @@ const App = () => (
               <Route path="pricing" element={<Pricing />} />
               <Route path="opportunities" element={<Opportunities />} />
               <Route path="contact" element={<Contact />} />
-              <Route path="register" element={<Register />} />
             </Route>
             <Route 
               path="/dashboard" 
