@@ -265,14 +265,18 @@ export type Database = {
           achievements: string | null
           activities: string | null
           address: string | null
+          city: string | null
           country: string | null
           created_at: string
           current_challenges: string | null
           id: string
           mission: string | null
           name: string
+          organization_type: string | null
+          postal_code: string | null
           registration_number: string | null
           services_required: string[] | null
+          state: string | null
           target_population: string | null
           updated_at: string
           user_id: string
@@ -283,14 +287,18 @@ export type Database = {
           achievements?: string | null
           activities?: string | null
           address?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string
           current_challenges?: string | null
           id?: string
           mission?: string | null
           name: string
+          organization_type?: string | null
+          postal_code?: string | null
           registration_number?: string | null
           services_required?: string[] | null
+          state?: string | null
           target_population?: string | null
           updated_at?: string
           user_id: string
@@ -301,14 +309,18 @@ export type Database = {
           achievements?: string | null
           activities?: string | null
           address?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string
           current_challenges?: string | null
           id?: string
           mission?: string | null
           name?: string
+          organization_type?: string | null
+          postal_code?: string | null
           registration_number?: string | null
           services_required?: string[] | null
+          state?: string | null
           target_population?: string | null
           updated_at?: string
           user_id?: string
@@ -361,9 +373,11 @@ export type Database = {
           first_name: string | null
           full_name: string | null
           id: string
+          job_title: string | null
           last_login: string | null
           last_name: string | null
           phone: string | null
+          registration_status: string | null
           updated_at: string
         }
         Insert: {
@@ -374,9 +388,11 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id: string
+          job_title?: string | null
           last_login?: string | null
           last_name?: string | null
           phone?: string | null
+          registration_status?: string | null
           updated_at?: string
         }
         Update: {
@@ -387,9 +403,11 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id?: string
+          job_title?: string | null
           last_login?: string | null
           last_name?: string | null
           phone?: string | null
+          registration_status?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -492,6 +510,33 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verification_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          token: string
+          used: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          token: string
+          used?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          token?: string
+          used?: boolean | null
           user_id?: string
         }
         Relationships: []
