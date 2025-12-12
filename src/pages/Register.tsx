@@ -11,14 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CheckCircle2, Mail, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle2, Mail, ArrowLeft, Loader2, ChevronDown } from "lucide-react";
 import { z } from "zod";
 
 const ORGANIZATION_TYPES = [
@@ -467,21 +460,22 @@ const Register = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="organizationType">Type of Organization *</Label>
-                      <Select
-                        value={formData.organizationType || undefined}
-                        onValueChange={value => updateField("organizationType", value)}
-                      >
-                        <SelectTrigger className={errors.organizationType ? "border-destructive" : ""}>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
+                      <div className="relative">
+                        <select
+                          id="organizationType"
+                          value={formData.organizationType}
+                          onChange={e => updateField("organizationType", e.target.value)}
+                          className={`flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none ${errors.organizationType ? "border-destructive" : "border-input"}`}
+                        >
+                          <option value="">Select type</option>
                           {ORGANIZATION_TYPES.map(type => (
-                            <SelectItem key={type} value={type}>
+                            <option key={type} value={type}>
                               {type}
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
+                      </div>
                       {errors.organizationType && (
                         <p className="text-sm text-destructive">{errors.organizationType}</p>
                       )}
@@ -551,21 +545,21 @@ const Register = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="country">Country *</Label>
-                      <Select
-                        value={formData.country}
-                        onValueChange={value => updateField("country", value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
+                      <div className="relative">
+                        <select
+                          id="country"
+                          value={formData.country}
+                          onChange={e => updateField("country", e.target.value)}
+                          className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+                        >
                           {COUNTRIES.map(country => (
-                            <SelectItem key={country.value} value={country.value}>
+                            <option key={country.value} value={country.value}>
                               {country.label}
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
+                      </div>
                     </div>
                   </div>
                 </CardContent>
