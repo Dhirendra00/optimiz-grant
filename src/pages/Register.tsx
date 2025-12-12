@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,15 +69,8 @@ const registrationSchema = z.object({
 type FormData = z.infer<typeof registrationSchema>;
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
-const Register = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<"form" | "verification-sent">("form");
-  const [errors, setErrors] = useState<FormErrors>({});
-
-  const [formData, setFormData] = useState<FormData>({
+const getInitialFormData = (): FormData => {
+  const defaultData: FormData = {
     fullName: "",
     email: "",
     password: "",
@@ -92,7 +85,30 @@ const Register = () => {
     country: "AU",
     servicesRequired: [],
     termsAccepted: false,
-  });
+  };
+
+  try {
+    const savedDraft = localStorage.getItem("registration_draft");
+    if (savedDraft) {
+      const parsed = JSON.parse(savedDraft);
+      return { ...defaultData, ...parsed, password: "", termsAccepted: false };
+    }
+  } catch (e) {
+    console.log("Could not restore draft");
+  }
+  
+  return defaultData;
+};
+
+const Register = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<"form" | "verification-sent">("form");
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [formData, setFormData] = useState<FormData>(getInitialFormData);
+  const isInitialMount = useRef(true);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -101,20 +117,12 @@ const Register = () => {
     }
   }, [user, navigate]);
 
-  // Auto-save draft to localStorage
+  // Auto-save draft to localStorage (skip initial mount)
   useEffect(() => {
-    const savedDraft = localStorage.getItem("registration_draft");
-    if (savedDraft) {
-      try {
-        const parsed = JSON.parse(savedDraft);
-        setFormData(prev => ({ ...prev, ...parsed, password: "" }));
-      } catch (e) {
-        console.log("Could not restore draft");
-      }
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
-  }, []);
-
-  useEffect(() => {
     const { password, termsAccepted, ...safeDraft } = formData;
     localStorage.setItem("registration_draft", JSON.stringify(safeDraft));
   }, [formData]);
