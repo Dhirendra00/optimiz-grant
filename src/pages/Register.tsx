@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { CheckCircle2, Mail, ArrowLeft, Loader2, ChevronDown } from "lucide-react";
+import { CheckCircle2, Mail, ArrowLeft, Loader2, ChevronDown, Check } from "lucide-react";
 import { z } from "zod";
+import logo from "@/assets/logo.jpeg";
 
 const ORGANIZATION_TYPES = [
   "Non-profit Organization",
@@ -79,6 +75,31 @@ const DEFAULT_FORM_DATA: FormData = {
   termsAccepted: false,
 };
 
+// Simple header for this page to avoid Radix issues
+const SimpleHeader = () => (
+  <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <Link to="/" className="flex items-center space-x-3">
+        <img src={logo} alt="OptimizGrant Logo" className="h-10 w-10 object-contain rounded-full" />
+        <span className="text-2xl font-bold text-primary">OptimizGrant</span>
+      </Link>
+      <div className="flex items-center space-x-4">
+        <Link to="/login" className="text-sm font-medium text-foreground/80 hover:text-primary">
+          Login
+        </Link>
+      </div>
+    </div>
+  </header>
+);
+
+const SimpleFooter = () => (
+  <footer className="border-t bg-muted/30 py-6">
+    <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      © {new Date().getFullYear()} OptimizGrant. All rights reserved.
+    </div>
+  </footer>
+);
+
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -126,7 +147,6 @@ const Register = () => {
 
   const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
@@ -177,7 +197,6 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Check if email already exists
       const { data: existingUsers } = await supabase
         .from("profiles")
         .select("email")
@@ -197,7 +216,6 @@ const Register = () => {
 
       const redirectUrl = `${window.location.origin}/verify-email`;
 
-      // Sign up with Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -224,7 +242,6 @@ const Register = () => {
       }
 
       if (data.user) {
-        // Create organization record
         const { error: orgError } = await supabase.from("organizations").insert({
           user_id: data.user.id,
           name: formData.organizationName,
@@ -241,10 +258,7 @@ const Register = () => {
           console.error("Error creating organization:", orgError);
         }
 
-        // Clear draft
         localStorage.removeItem("registration_draft");
-        
-        // Show verification sent step
         setStep("verification-sent");
       }
     } catch (error: any) {
@@ -287,10 +301,15 @@ const Register = () => {
     }
   };
 
+  const buttonClasses = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2";
+  const primaryButtonClasses = `${buttonClasses} bg-primary text-primary-foreground hover:bg-primary/90`;
+  const outlineButtonClasses = `${buttonClasses} border border-input bg-background hover:bg-accent hover:text-accent-foreground`;
+  const ghostButtonClasses = `${buttonClasses} hover:bg-accent hover:text-accent-foreground`;
+
   if (step === "verification-sent") {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
+        <SimpleHeader />
         <main className="flex-1 flex items-center justify-center bg-muted/30 p-4">
           <Card className="w-full max-w-md text-center">
             <CardHeader>
@@ -309,9 +328,9 @@ const Register = () => {
                 <p className="mt-2">The link will expire in 24 hours.</p>
               </div>
               <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full"
+                <button
+                  type="button"
+                  className={`w-full ${outlineButtonClasses}`}
                   onClick={resendVerificationEmail}
                   disabled={loading}
                 >
@@ -323,15 +342,15 @@ const Register = () => {
                   ) : (
                     "Resend Verification Email"
                   )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full"
+                </button>
+                <button
+                  type="button"
+                  className={`w-full ${ghostButtonClasses}`}
                   onClick={() => setStep("form")}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Registration
-                </Button>
+                </button>
               </div>
               <p className="text-xs text-muted-foreground">
                 Having trouble? Contact us at{" "}
@@ -342,14 +361,14 @@ const Register = () => {
             </CardContent>
           </Card>
         </main>
-        <Footer />
+        <SimpleFooter />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <SimpleHeader />
       <main className="flex-1 bg-muted/30 py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
@@ -367,7 +386,9 @@ const Register = () => {
                 <span className="text-sm font-medium">Step 1 of 2</span>
                 <span className="text-sm text-muted-foreground">Account Setup</span>
               </div>
-              <Progress value={50} className="h-2" />
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+                <div className="h-full bg-primary transition-all" style={{ width: "50%" }} />
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -583,10 +604,17 @@ const Register = () => {
                         }`}
                         onClick={() => toggleService(service)}
                       >
-                        <Checkbox
-                          checked={formData.servicesRequired.includes(service)}
-                          onCheckedChange={() => toggleService(service)}
-                        />
+                        <div
+                          className={`h-4 w-4 shrink-0 rounded-sm border flex items-center justify-center ${
+                            formData.servicesRequired.includes(service)
+                              ? "bg-primary border-primary text-primary-foreground"
+                              : "border-primary"
+                          }`}
+                        >
+                          {formData.servicesRequired.includes(service) && (
+                            <Check className="h-3 w-3" />
+                          )}
+                        </div>
                         <Label className="cursor-pointer flex-1">{service}</Label>
                         {formData.servicesRequired.includes(service) && (
                           <CheckCircle2 className="h-4 w-4 text-primary" />
@@ -604,28 +632,35 @@ const Register = () => {
               <Card className="shadow-card">
                 <CardContent className="pt-6">
                   <div className="flex items-start space-x-3 mb-6">
-                    <Checkbox
-                      id="terms"
-                      checked={formData.termsAccepted}
-                      onCheckedChange={checked => updateField("termsAccepted", checked as boolean)}
-                    />
+                    <div
+                      className={`h-4 w-4 shrink-0 rounded-sm border cursor-pointer flex items-center justify-center mt-0.5 ${
+                        formData.termsAccepted
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : "border-primary"
+                      }`}
+                      onClick={() => updateField("termsAccepted", !formData.termsAccepted)}
+                    >
+                      {formData.termsAccepted && <Check className="h-3 w-3" />}
+                    </div>
                     <div className="space-y-1">
-                      <Label htmlFor="terms" className="text-sm font-normal cursor-pointer">
+                      <label 
+                        className="text-sm font-normal cursor-pointer"
+                        onClick={() => updateField("termsAccepted", !formData.termsAccepted)}
+                      >
                         I agree to the{" "}
-                        <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and{" "}
-                        <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>, and consent to OptimizGrant
+                        <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link> and{" "}
+                        <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>, and consent to OptimizGrant
                         contacting me regarding services and opportunities *
-                      </Label>
+                      </label>
                       {errors.termsAccepted && (
                         <p className="text-sm text-destructive">{errors.termsAccepted}</p>
                       )}
                     </div>
                   </div>
 
-                  <Button
+                  <button
                     type="submit"
-                    size="lg"
-                    className="w-full"
+                    className={`w-full h-11 rounded-md px-8 ${primaryButtonClasses}`}
                     disabled={loading}
                   >
                     {loading ? (
@@ -636,13 +671,13 @@ const Register = () => {
                     ) : (
                       "Create Account & Verify Email"
                     )}
-                  </Button>
+                  </button>
 
                   <p className="text-center text-sm text-muted-foreground mt-4">
                     Already have an account?{" "}
-                    <a href="/login" className="text-primary hover:underline">
+                    <Link to="/login" className="text-primary hover:underline">
                       Log in here
-                    </a>
+                    </Link>
                   </p>
                 </CardContent>
               </Card>
@@ -660,7 +695,7 @@ const Register = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      <SimpleFooter />
     </div>
   );
 };
