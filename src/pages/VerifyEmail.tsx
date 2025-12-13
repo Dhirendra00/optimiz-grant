@@ -1,76 +1,82 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { CheckCircle2, XCircle, Loader2, Mail, ArrowLeft } from "lucide-react";
+import logo from "@/assets/logo.jpeg";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+// Simple header to avoid Radix issues
+const SimpleHeader = () => (
+  <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <Link to="/" className="flex items-center space-x-3">
+        <img src={logo} alt="OptimizGrant Logo" className="h-10 w-10 object-contain rounded-full" />
+        <span className="text-2xl font-bold text-primary">OptimizGrant</span>
+      </Link>
+    </div>
+  </header>
+);
+
+const SimpleFooter = () => (
+  <footer className="border-t bg-muted/30 py-6">
+    <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      © {new Date().getFullYear()} OptimizGrant. All rights reserved.
+    </div>
+  </footer>
+);
 
 const VerifyEmail = () => {
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [countdown, setCountdown] = useState(5);
+  const [status, setStatus] = useState<"loading" | "success" | "error" | "resend">("loading");
+  const [countdown, setCountdown] = useState(3);
   const [errorMessage, setErrorMessage] = useState("");
+  const [resendEmail, setResendEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
+
+  const buttonClasses = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2";
+  const primaryButtonClasses = `${buttonClasses} bg-primary text-primary-foreground hover:bg-primary/90`;
+  const outlineButtonClasses = `${buttonClasses} border border-input bg-background hover:bg-accent hover:text-accent-foreground`;
+  const ghostButtonClasses = `${buttonClasses} hover:bg-accent hover:text-accent-foreground`;
 
   useEffect(() => {
     const verifyEmail = async () => {
-      // Check if this is a redirect from Supabase email confirmation
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get("access_token");
-      const refreshToken = hashParams.get("refresh_token");
-      const type = hashParams.get("type");
+      const token = searchParams.get("token");
 
-      // Also check URL params for error
-      const errorDescription = searchParams.get("error_description");
-      if (errorDescription) {
+      if (!token) {
         setStatus("error");
-        setErrorMessage(errorDescription);
+        setErrorMessage("No verification token provided. Please check your email for the verification link.");
         return;
       }
 
-      if (accessToken && refreshToken && type === "signup") {
-        try {
-          const { error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
+      try {
+        const { data, error } = await supabase.functions.invoke("verify-email-token", {
+          body: { token },
+        });
 
-          if (error) throw error;
-
-          // Update profile to verified_incomplete status
-          const { data: { user: currentUser } } = await supabase.auth.getUser();
-          if (currentUser) {
-            await supabase
-              .from("profiles")
-              .update({ 
-                email_verified: true, 
-                registration_status: "verified_incomplete" 
-              })
-              .eq("id", currentUser.id);
-          }
-
-          setStatus("success");
-        } catch (error: any) {
-          console.error("Verification error:", error);
-          setStatus("error");
-          setErrorMessage(error.message || "Verification failed");
+        if (error) {
+          throw new Error(error.message || "Verification failed");
         }
-      } else if (user) {
-        // Already logged in
-        setStatus("success");
-      } else {
-        // No verification tokens and not logged in
+
+        if (data?.success) {
+          setStatus("success");
+        } else {
+          setStatus("error");
+          setErrorMessage(data?.error || "Verification failed. Please try again.");
+        }
+      } catch (error: any) {
+        console.error("Verification error:", error);
         setStatus("error");
-        setErrorMessage("Invalid or expired verification link");
+        setErrorMessage(error.message || "An error occurred during verification");
       }
     };
 
     verifyEmail();
-  }, [searchParams, user]);
+  }, [searchParams]);
 
   // Countdown and redirect for success
   useEffect(() => {
@@ -79,13 +85,57 @@ const VerifyEmail = () => {
       return () => clearTimeout(timer);
     }
     if (status === "success" && countdown === 0) {
-      navigate("/dashboard");
+      navigate("/login");
     }
   }, [status, countdown, navigate]);
 
+  const handleResendEmail = async () => {
+    if (!resendEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setResendLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("resend-verification-email", {
+        body: { email: resendEmail },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Email Sent",
+          description: "A new verification email has been sent to your inbox",
+        });
+        setStatus("loading");
+        setErrorMessage("");
+        // Show a message that they should check email
+        setTimeout(() => {
+          setStatus("error");
+          setErrorMessage("Please check your inbox for the new verification link.");
+        }, 2000);
+      } else {
+        throw new Error(data?.error || "Failed to resend email");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend verification email",
+        variant: "destructive",
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <SimpleHeader />
       <main className="flex-1 flex items-center justify-center bg-muted/30 p-4">
         <Card className="w-full max-w-md text-center">
           {status === "loading" && (
@@ -106,18 +156,21 @@ const VerifyEmail = () => {
                 <div className="mx-auto mb-4 w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center">
                   <CheckCircle2 className="w-10 h-10 text-accent" />
                 </div>
-                <CardTitle className="text-2xl">Email Verified!</CardTitle>
+                <CardTitle className="text-2xl">Email Verified Successfully!</CardTitle>
                 <CardDescription className="text-base">
-                  Your email has been verified successfully
+                  Your email has been verified. You can now log in to your account.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-muted-foreground">
-                  Redirecting to your dashboard in {countdown} seconds...
+                  Redirecting to login in {countdown} seconds...
                 </p>
-                <Button onClick={() => navigate("/dashboard")} className="w-full">
-                  Go to My Dashboard
-                </Button>
+                <button 
+                  onClick={() => navigate("/login")} 
+                  className={`w-full ${primaryButtonClasses}`}
+                >
+                  Go to Login Now
+                </button>
               </CardContent>
             </>
           )}
@@ -134,21 +187,59 @@ const VerifyEmail = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-muted p-4 rounded-lg text-sm text-muted-foreground">
-                  <p>If you haven't verified your email yet, please try logging in and we'll send you a new verification link.</p>
+                <div className="bg-muted p-4 rounded-lg text-sm text-muted-foreground text-left">
+                  <p className="font-medium mb-2">Need a new verification link?</p>
+                  <p>Enter your email below and we'll send you a new one.</p>
                 </div>
+                
+                <div className="space-y-2 text-left">
+                  <Label htmlFor="resendEmail">Email Address</Label>
+                  <Input
+                    id="resendEmail"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                  />
+                </div>
+
                 <div className="space-y-2">
-                  <Button onClick={() => navigate("/login")} className="w-full">
+                  <button
+                    onClick={handleResendEmail}
+                    disabled={resendLoading}
+                    className={`w-full ${primaryButtonClasses}`}
+                  >
+                    {resendLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="mr-2 h-4 w-4" />
+                        Resend Verification Email
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className={`w-full ${outlineButtonClasses}`}
+                  >
                     Go to Login
-                  </Button>
-                  <Button onClick={() => navigate("/register")} variant="outline" className="w-full">
-                    Create New Account
-                  </Button>
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
+                    className={`w-full ${ghostButtonClasses}`}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Registration
+                  </button>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                
+                <p className="text-xs text-muted-foreground pt-4 border-t">
                   Need help? Contact{" "}
-                  <a href="mailto:info@optimizgrant.com" className="text-primary hover:underline">
-                    info@optimizgrant.com
+                  <a href="mailto:support@optimizgrant.com" className="text-primary hover:underline">
+                    support@optimizgrant.com
                   </a>
                 </p>
               </CardContent>
@@ -156,7 +247,7 @@ const VerifyEmail = () => {
           )}
         </Card>
       </main>
-      <Footer />
+      <SimpleFooter />
     </div>
   );
 };
