@@ -258,6 +258,20 @@ const Register = () => {
           console.error("Error creating organization:", orgError);
         }
 
+        // Send branded verification email via edge function
+        try {
+          await supabase.functions.invoke("send-verification-email", {
+            body: {
+              userId: data.user.id,
+              userEmail: formData.email,
+              userName: formData.fullName,
+            },
+          });
+        } catch (emailError) {
+          console.error("Error sending verification email:", emailError);
+          // Don't block registration if email fails
+        }
+
         localStorage.removeItem("registration_draft");
         setStep("verification-sent");
       }
@@ -276,20 +290,20 @@ const Register = () => {
   const resendVerificationEmail = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email: formData.email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/verify-email`,
-        },
+      const { data, error } = await supabase.functions.invoke("resend-verification-email", {
+        body: { email: formData.email },
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Email Sent",
-        description: "A new verification email has been sent to your inbox",
-      });
+      
+      if (data?.success) {
+        toast({
+          title: "Email Sent",
+          description: "A new verification email has been sent to your inbox",
+        });
+      } else {
+        throw new Error(data?.error || "Failed to send email");
+      }
     } catch (error: any) {
       toast({
         title: "Error",
