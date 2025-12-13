@@ -260,22 +260,73 @@ export type Database = {
         }
         Relationships: []
       }
+      organization_documents: {
+        Row: {
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          organization_id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          organization_id: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          organization_id?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           achievements: string | null
           activities: string | null
           address: string | null
+          annual_budget_range: string | null
           city: string | null
+          consulting_interest: boolean | null
           country: string | null
           created_at: string
           current_challenges: string | null
+          current_funders: string | null
+          geographic_focus: string | null
+          grant_experience_details: string | null
+          has_grant_experience: boolean | null
           id: string
           mission: string | null
           name: string
           organization_type: string | null
           postal_code: string | null
+          preferred_communication: string | null
+          profile_submitted: boolean | null
+          profile_submitted_at: string | null
           registration_number: string | null
           services_required: string[] | null
+          staff_count: string | null
           state: string | null
           target_population: string | null
           updated_at: string
@@ -287,17 +338,27 @@ export type Database = {
           achievements?: string | null
           activities?: string | null
           address?: string | null
+          annual_budget_range?: string | null
           city?: string | null
+          consulting_interest?: boolean | null
           country?: string | null
           created_at?: string
           current_challenges?: string | null
+          current_funders?: string | null
+          geographic_focus?: string | null
+          grant_experience_details?: string | null
+          has_grant_experience?: boolean | null
           id?: string
           mission?: string | null
           name: string
           organization_type?: string | null
           postal_code?: string | null
+          preferred_communication?: string | null
+          profile_submitted?: boolean | null
+          profile_submitted_at?: string | null
           registration_number?: string | null
           services_required?: string[] | null
+          staff_count?: string | null
           state?: string | null
           target_population?: string | null
           updated_at?: string
@@ -309,17 +370,27 @@ export type Database = {
           achievements?: string | null
           activities?: string | null
           address?: string | null
+          annual_budget_range?: string | null
           city?: string | null
+          consulting_interest?: boolean | null
           country?: string | null
           created_at?: string
           current_challenges?: string | null
+          current_funders?: string | null
+          geographic_focus?: string | null
+          grant_experience_details?: string | null
+          has_grant_experience?: boolean | null
           id?: string
           mission?: string | null
           name?: string
           organization_type?: string | null
           postal_code?: string | null
+          preferred_communication?: string | null
+          profile_submitted?: boolean | null
+          profile_submitted_at?: string | null
           registration_number?: string | null
           services_required?: string[] | null
+          staff_count?: string | null
           state?: string | null
           target_population?: string | null
           updated_at?: string
