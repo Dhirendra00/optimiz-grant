@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Building2, FileText, CheckCircle2, Loader2, AlertCircle, Bell } from "lucide-react";
+import { CheckCircle2, Loader2, Bell } from "lucide-react";
 import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
 import QuickActions from "@/components/dashboard/QuickActions";
 import ProfileCompletionWidget from "@/components/dashboard/ProfileCompletionWidget";
@@ -209,7 +207,7 @@ const UserDashboard = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
-        {/* Welcome Banner for incomplete profiles */}
+        {/* Welcome Banner (30% profile complete) */}
         <WelcomeBanner
           userName={profile?.full_name?.split(" ")[0] || "there"}
           profileCompletion={profileCompletion}
@@ -234,125 +232,19 @@ const UserDashboard = () => {
           </Card>
         )}
 
-        {/* Dashboard Header */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {profile?.full_name || user?.email}</p>
-          </div>
-          <Button onClick={signOut} variant="outline">Sign Out</Button>
-        </div>
-
-        {/* Status Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Profile Status</CardTitle>
-              <User className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                {profile?.registration_status === "active" ? (
-                  <>
-                    <CheckCircle2 className="h-5 w-5 text-accent" />
-                    <span className="text-lg font-bold">Verified</span>
-                  </>
-                ) : isProfileSubmitted ? (
-                  <>
-                    <Loader2 className="h-5 w-5 text-amber-500 animate-spin" />
-                    <span className="text-lg font-bold">Under Review</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="h-5 w-5 text-amber-500" />
-                    <span className="text-lg font-bold">Incomplete</span>
-                  </>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{profileCompletion}% complete</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Organization</CardTitle>
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-bold truncate">{organization?.name || "Not set"}</div>
-              <p className="text-xs text-muted-foreground">{organization?.organization_type || "Organization type not set"}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Services Requested</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{organization?.services_required?.length || 0}</div>
-              <p className="text-xs text-muted-foreground">Active service interests</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left Column - Quick Actions & Profile Completion */}
-          <div className="lg:col-span-2 space-y-6">
+        {/* Main Dashboard Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Quick Actions Menu */}
+          <div className="lg:col-span-2">
             <QuickActions 
               isProfileComplete={!isProfileIncomplete} 
               onCompleteProfile={() => setShowProfileModal(true)}
             />
-            
-            {/* Organization Details Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Organization Details</CardTitle>
-                <CardDescription>Your registered organization information</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground text-xs">Organization Name</Label>
-                    <p className="font-medium">{organization?.name || "-"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground text-xs">Type</Label>
-                    <p>{organization?.organization_type || "-"}</p>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground text-xs">Address</Label>
-                  <p>
-                    {[organization?.address, organization?.city, organization?.state, organization?.postal_code, organization?.country]
-                      .filter(Boolean)
-                      .join(", ") || "-"}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground text-xs">Website</Label>
-                    <p>{organization?.website || "-"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground text-xs">Year Established</Label>
-                    <p>{organization?.year_established || "-"}</p>
-                  </div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-4" 
-                  onClick={() => setShowProfileModal(true)}
-                >
-                  Edit Organization Profile
-                </Button>
-              </CardContent>
-            </Card>
           </div>
 
-          {/* Right Column - Profile Completion Widget & Notifications */}
+          {/* Right Column - Profile Completion Widget & Notifications Panel */}
           <div className="space-y-6">
+            {/* Profile Completion Widget */}
             <ProfileCompletionWidget 
               sections={profileSections}
               totalCompletion={profileCompletion}
@@ -365,6 +257,7 @@ const UserDashboard = () => {
                   <Bell className="h-5 w-5" />
                   Notifications
                 </CardTitle>
+                <CardDescription>Recent updates and alerts</CardDescription>
               </CardHeader>
               <CardContent>
                 {announcements.length > 0 ? (
