@@ -10,7 +10,7 @@ import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
 import QuickActions from "@/components/dashboard/QuickActions";
 import ProfileCompletionWidget from "@/components/dashboard/ProfileCompletionWidget";
 import ProfileCompletionForm from "@/components/dashboard/ProfileCompletionForm";
-
+import InitialProfileSetup from "@/components/dashboard/InitialProfileSetup";
 interface Profile {
   id: string;
   email: string;
@@ -66,7 +66,8 @@ const UserDashboard = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
-
+  const [showInitialSetup, setShowInitialSetup] = useState(false);
+  const [profileExistsInDb, setProfileExistsInDb] = useState(true);
   useEffect(() => {
     if (user) {
       fetchUserData();
@@ -86,9 +87,11 @@ const UserDashboard = () => {
 
       if (profileError) throw profileError;
       
-      // Handle missing profile
+      // Handle missing profile - show initial setup modal
       if (!profileData) {
         console.warn("Profile not found for user:", user.id);
+        setProfileExistsInDb(false);
+        setShowInitialSetup(true);
         setProfile({
           id: user.id,
           email: user.email || "",
@@ -98,6 +101,7 @@ const UserDashboard = () => {
           email_verified: false,
         });
       } else {
+        setProfileExistsInDb(true);
         setProfile(profileData);
       }
 
@@ -303,6 +307,17 @@ const UserDashboard = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Initial Profile Setup Modal - for users missing profile in DB */}
+      {user && !profileExistsInDb && (
+        <InitialProfileSetup
+          open={showInitialSetup}
+          onOpenChange={setShowInitialSetup}
+          userId={user.id}
+          userEmail={user.email || ""}
+          onProfileCreated={fetchUserData}
+        />
+      )}
 
       {/* Profile Completion Form Modal */}
       {user && organization && (
