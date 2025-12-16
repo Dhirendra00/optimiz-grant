@@ -77,25 +77,39 @@ const UserDashboard = () => {
     if (!user) return;
 
     try {
-      // Fetch profile
+      // Fetch profile - use maybeSingle to handle missing profile gracefully
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
-      setProfile(profileData);
+      
+      // Handle missing profile
+      if (!profileData) {
+        console.warn("Profile not found for user:", user.id);
+        setProfile({
+          id: user.id,
+          email: user.email || "",
+          full_name: user.user_metadata?.full_name || null,
+          phone: null,
+          registration_status: "pending_verification",
+          email_verified: false,
+        });
+      } else {
+        setProfile(profileData);
+      }
 
-      // Fetch organization
+      // Fetch organization - use maybeSingle to handle missing org gracefully
       const { data: orgData, error: orgError } = await supabase
         .from("organizations")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (orgError && orgError.code !== "PGRST116") {
-        throw orgError;
+      if (orgError) {
+        console.error("Error fetching organization:", orgError);
       }
 
       if (orgData) {
@@ -113,8 +127,8 @@ const UserDashboard = () => {
         setAnnouncements(announcementData);
       }
 
-      // Show profile completion modal if profile is incomplete
-      if (profileData?.registration_status === "verified_incomplete") {
+      // Show profile completion modal if profile is incomplete and organization exists
+      if (profileData?.registration_status === "verified_incomplete" && orgData) {
         setShowProfileModal(true);
       }
     } catch (error: any) {
