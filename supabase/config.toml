@@ -3,6 +3,9 @@ project_id = "mmsqvonqorqctwjdoxro"
 [functions.notify-admin-new-user]
 verify_jwt = false
 
+[functions.notify-admin-profile-submitted]
+verify_jwt = false
+
 [functions.send-verification-email]
 verify_jwt = false
 
