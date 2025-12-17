@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { ImageUpload } from "./ImageUpload";
 
 interface TeamMember {
   id: string;
@@ -19,6 +20,7 @@ interface TeamMember {
   email: string;
   category: string;
   display_order: number;
+  photo_url: string | null;
 }
 
 export const TeamMembersManager = () => {
@@ -32,6 +34,7 @@ export const TeamMembersManager = () => {
     email: "",
     category: "experts",
     display_order: 0,
+    photo_url: "" as string | null,
   });
 
   useEffect(() => {
@@ -84,6 +87,16 @@ export const TeamMembersManager = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this team member?")) return;
 
+    const member = members.find((m) => m.id === id);
+    
+    // Delete photo from storage if exists
+    if (member?.photo_url) {
+      const path = member.photo_url.split("team-photos/")[1];
+      if (path) {
+        await supabase.storage.from("team-photos").remove([path]);
+      }
+    }
+
     const { error } = await supabase.from("team_members").delete().eq("id", id);
 
     if (error) {
@@ -104,6 +117,7 @@ export const TeamMembersManager = () => {
       email: member.email || "",
       category: member.category || "experts",
       display_order: member.display_order || 0,
+      photo_url: member.photo_url || null,
     });
     setIsDialogOpen(true);
   };
@@ -117,6 +131,7 @@ export const TeamMembersManager = () => {
       email: "",
       category: "experts",
       display_order: 0,
+      photo_url: null,
     });
   };
 
@@ -136,6 +151,14 @@ export const TeamMembersManager = () => {
               <DialogTitle>{editingMember ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex justify-center">
+                <ImageUpload
+                  bucket="team-photos"
+                  currentUrl={formData.photo_url || undefined}
+                  onUpload={(url) => setFormData({ ...formData, photo_url: url })}
+                  onRemove={() => setFormData({ ...formData, photo_url: null })}
+                />
+              </div>
               <div>
                 <Label htmlFor="name">Name</Label>
                 <Input
