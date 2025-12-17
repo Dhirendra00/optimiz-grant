@@ -253,6 +253,28 @@ const ProfileCompletionForm = ({
           .update({ registration_status: "profile_submitted" })
           .eq("id", userId);
 
+        // Get user profile for notification
+        const { data: userProfile } = await supabase
+          .from("profiles")
+          .select("full_name, email")
+          .eq("id", userId)
+          .single();
+
+        // Notify admins about profile submission
+        try {
+          await supabase.functions.invoke("notify-admin-profile-submitted", {
+            body: {
+              organizationId: organization.id,
+              organizationName: organization.name,
+              userEmail: userProfile?.email || "",
+              userName: userProfile?.full_name || "",
+            },
+          });
+        } catch (notifyError) {
+          console.error("Failed to send admin notification:", notifyError);
+          // Don't fail the submission if notification fails
+        }
+
         toast({
           title: "Profile Submitted Successfully!",
           description: "Our team will review your profile within 24-48 hours. You'll receive a notification once verified.",
