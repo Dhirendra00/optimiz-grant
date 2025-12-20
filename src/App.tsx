@@ -20,6 +20,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CMSDashboard from "./pages/admin/CMSDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import InviteManagement from "./pages/admin/InviteManagement";
+import ProfileReviewQueue from "./pages/admin/ProfileReviewQueue";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,14 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRole="admin">
                   <InviteManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/profiles"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <ProfileReviewQueue />
                 </ProtectedRoute>
               }
             />
