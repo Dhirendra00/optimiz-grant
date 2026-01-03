@@ -16,11 +16,16 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import VerifyEmail from "./pages/VerifyEmail";
 import UserDashboard from "./pages/UserDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+import { AdminLayout } from "./components/admin/AdminLayout";
+import AdminDashboardOverview from "./pages/admin/AdminDashboardOverview";
 import CMSDashboard from "./pages/admin/CMSDashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import InviteManagement from "./pages/admin/InviteManagement";
 import ProfileReviewQueue from "./pages/admin/ProfileReviewQueue";
+import NotificationsCenter from "./pages/admin/NotificationsCenter";
+import SystemSettings from "./pages/admin/SystemSettings";
+import AuditLogs from "./pages/admin/AuditLogs";
+import HelpSupport from "./pages/admin/HelpSupport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,46 +57,25 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            {/* Admin Routes with Sidebar Layout */}
             <Route
               path="/admin"
               element={
                 <ProtectedRoute requiredRole="admin">
-                  <AdminDashboard />
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/admin/cms"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <CMSDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <UserManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/invites"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <InviteManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/profiles"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <ProfileReviewQueue />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route index element={<AdminDashboardOverview />} />
+              <Route path="cms" element={<CMSDashboard />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="invites" element={<InviteManagement />} />
+              <Route path="profiles" element={<ProfileReviewQueue />} />
+              <Route path="notifications" element={<NotificationsCenter />} />
+              <Route path="settings" element={<SystemSettings />} />
+              <Route path="audit-logs" element={<AuditLogs />} />
+              <Route path="help" element={<HelpSupport />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
