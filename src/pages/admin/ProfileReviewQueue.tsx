@@ -241,22 +241,20 @@ export default function ProfileReviewQueue() {
 
   if (userRole !== "admin") {
     return (
-      <div className="container mx-auto py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>You don't have permission to access this page.</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Access Denied</CardTitle>
+          <CardDescription>You don't have permission to access this page.</CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Profile Review Queue</h1>
+          <h1 className="text-3xl font-bold text-foreground">Profile Review Queue</h1>
           <p className="text-muted-foreground">Review and verify organization profiles</p>
         </div>
         <Badge variant="secondary" className="text-lg px-4 py-2">
