@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -17,18 +17,20 @@ const Login = () => {
   const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
   
-  const { signIn, signUp, user, userRole } = useAuth();
+  const { signIn, signUp, user, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already logged in
-  if (user) {
-    if (userRole === "admin") {
-      navigate("/admin", { replace: true });
-    } else {
-      navigate("/dashboard", { replace: true });
+  // Redirect if already logged in - wait for both user and role to be loaded
+  useEffect(() => {
+    if (!authLoading && user && userRole) {
+      if (userRole === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     }
-  }
+  }, [user, userRole, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
