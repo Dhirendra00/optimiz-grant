@@ -1,13 +1,18 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
+type AppRole = 'visitor' | 'organization' | 'consultant' | 'admin';
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  userRole: string | null;
+  userRoles: AppRole[];
+  primaryRole: AppRole | null;
+  userRole: AppRole | null; // Alias for primaryRole for backward compatibility
   loading: boolean;
+  hasRole: (role: AppRole) => boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string, inviteCode?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -15,12 +20,36 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Role priority: higher number = higher privilege
+const getRolePriority = (role: AppRole): number => {
+  const priorities: Record<AppRole, number> = {
+    admin: 4,
+    consultant: 3,
+    organization: 2,
+    visitor: 1,
+  };
+  return priorities[role] || 0;
+};
+
+const getPrimaryRole = (roles: AppRole[]): AppRole | null => {
+  if (roles.length === 0) return null;
+  return roles.reduce((highest, role) =>
+    getRolePriority(role) > getRolePriority(highest) ? role : highest
+  );
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [userRole, setUserRole] = useState<'visitor' | 'organization' | 'consultant' | 'admin' | null>(null);
+  const [userRoles, setUserRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const primaryRole = getPrimaryRole(userRoles);
+
+  const hasRole = useCallback((role: AppRole): boolean => {
+    return userRoles.includes(role);
+  }, [userRoles]);
 
   useEffect(() => {
     // Set up auth state listener
@@ -29,13 +58,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Fetch user role when session changes
+        // Fetch user roles when session changes
         if (session?.user) {
           setTimeout(() => {
-            fetchUserRole(session.user.id);
+            fetchUserRoles(session.user.id);
           }, 0);
         } else {
-          setUserRole(null);
+          setUserRoles([]);
+          setLoading(false);
         }
       }
     );
@@ -46,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserRole(session.user.id);
+        fetchUserRoles(session.user.id);
       } else {
         setLoading(false);
       }
@@ -55,24 +85,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRoles = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
+        .eq("user_id", userId);
       
       if (error) {
-        console.error("Error fetching user role:", error);
-      } else if (data) {
-        setUserRole(data.role);
+        console.error("Error fetching user roles:", error);
+        setUserRoles([]);
+      } else if (data && data.length > 0) {
+        const roles = data.map(d => d.role as AppRole);
+        setUserRoles(roles);
       } else {
-        console.warn("No role found for user:", userId);
-        setUserRole(null);
+        console.warn("No roles found for user:", userId);
+        setUserRoles([]);
       }
     } catch (err) {
-      console.error("Failed to fetch user role:", err);
+      console.error("Failed to fetch user roles:", err);
+      setUserRoles([]);
     } finally {
       setLoading(false);
     }
@@ -159,12 +191,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setUserRole(null);
+    setUserRoles([]);
     navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, userRole, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      userRoles,
+      primaryRole,
+      userRole: primaryRole, // Backward compatibility alias
+      loading, 
+      hasRole,
+      signIn, 
+      signUp, 
+      signOut 
+    }}>
       {children}
     </AuthContext.Provider>
   );

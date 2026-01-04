@@ -17,20 +17,22 @@ const Login = () => {
   const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
   
-  const { signIn, signUp, user, userRole, loading: authLoading } = useAuth();
+  const { signIn, signUp, user, primaryRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect if already logged in - wait for both user and role to be loaded
+  // Redirect if already logged in - wait for both user and primaryRole to be loaded
   useEffect(() => {
-    if (!authLoading && user && userRole) {
-      if (userRole === "admin") {
+    if (!authLoading && user && primaryRole) {
+      if (primaryRole === "admin") {
         navigate("/admin", { replace: true });
+      } else if (primaryRole === "consultant") {
+        navigate("/dashboard", { replace: true });
       } else {
         navigate("/dashboard", { replace: true });
       }
     }
-  }, [user, userRole, authLoading, navigate]);
+  }, [user, primaryRole, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

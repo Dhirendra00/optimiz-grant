@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { user, userRole, loading } = useAuth();
+  const { user, hasRole, primaryRole, loading } = useAuth();
 
-  // Show loading while auth is loading OR while user exists but role hasn't loaded yet
-  if (loading || (user && userRole === null)) {
+  // Show loading while auth is loading OR while user exists but roles haven't loaded yet
+  if (loading || (user && primaryRole === null)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -23,11 +23,12 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && userRole !== requiredRole) {
-    // Redirect based on user's actual role
-    if (userRole === "admin") {
+  // Check if user has the required role (using hasRole which checks the roles array)
+  if (requiredRole && !hasRole(requiredRole as any)) {
+    // Redirect based on user's primary (highest privilege) role
+    if (primaryRole === "admin") {
       return <Navigate to="/admin" replace />;
-    } else if (userRole === "consultant") {
+    } else if (primaryRole === "consultant") {
       return <Navigate to="/dashboard" replace />;
     } else {
       return <Navigate to="/dashboard" replace />;
