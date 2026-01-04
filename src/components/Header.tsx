@@ -7,7 +7,7 @@ import logo from "@/assets/logo.jpeg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, userRole, signOut } = useAuth();
+  const { user, primaryRole, signOut } = useAuth();
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -48,7 +48,7 @@ const Header = () => {
           {user ? (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link to={userRole === "admin" ? "/admin" : "/dashboard"}>
+                <Link to={primaryRole === "admin" ? "/admin" : "/dashboard"}>
                   Dashboard
                 </Link>
               </Button>
@@ -96,7 +96,7 @@ const Header = () => {
               {user ? (
                 <>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to={userRole === "admin" ? "/admin" : "/dashboard"}>
+                    <Link to={primaryRole === "admin" ? "/admin" : "/dashboard"}>
                       Dashboard
                     </Link>
                   </Button>
