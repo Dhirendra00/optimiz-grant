@@ -10,7 +10,8 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const { user, userRole, loading } = useAuth();
 
-  if (loading) {
+  // Show loading while auth is loading OR while user exists but role hasn't loaded yet
+  if (loading || (user && userRole === null)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
