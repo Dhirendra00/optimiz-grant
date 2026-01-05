@@ -15,6 +15,7 @@ import Contact from "./pages/Contact";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import VerifyEmail from "./pages/VerifyEmail";
+import ResetPassword from "./pages/ResetPassword";
 import UserDashboard from "./pages/UserDashboard";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import AdminDashboardOverview from "./pages/admin/AdminDashboardOverview";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="services" element={<Services />} />
