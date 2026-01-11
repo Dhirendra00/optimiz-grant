@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Check } from "lucide-react";
+import { Check, Star, Sparkles } from "lucide-react";
 
 const Pricing = () => {
   const plans = [
@@ -66,11 +66,14 @@ const Pricing = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <section className="bg-muted/50 py-16 md:py-20">
+      <section className="section-navy py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
+            <span className="inline-block text-accent font-semibold text-sm uppercase tracking-wider mb-4">
+              Simple Pricing
+            </span>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Subscription Plans</h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-primary-foreground/80">
               Choose the plan that fits your organization's needs and unlock the power of strategic grant success
             </p>
           </div>
@@ -78,37 +81,40 @@ const Pricing = () => {
       </section>
 
       {/* Pricing Cards */}
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {plans.map((plan, index) => (
               <Card
                 key={index}
-                className={`shadow-card hover:shadow-card-hover transition-all ${
-                  plan.highlighted ? "border-primary border-2 scale-105" : ""
+                className={`relative shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden ${
+                  plan.highlighted ? "border-2 border-feature scale-[1.02]" : "border-2 border-transparent hover:border-feature/20"
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="bg-primary text-primary-foreground text-center py-2 font-semibold rounded-t-lg">
+                  <div className="absolute top-0 left-0 right-0 bg-feature text-feature-foreground text-center py-2 font-semibold text-sm flex items-center justify-center gap-2">
+                    <Star className="h-4 w-4" />
                     Most Popular
                   </div>
                 )}
-                <CardHeader>
+                <CardHeader className={plan.highlighted ? "pt-12" : ""}>
                   <CardTitle className="text-3xl">{plan.name}</CardTitle>
-                  <CardDescription className="text-lg">{plan.subtitle}</CardDescription>
+                  <CardDescription className="text-lg text-feature font-medium">{plan.subtitle}</CardDescription>
                   <p className="text-muted-foreground mt-2">{plan.description}</p>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3 mb-6">
+                  <ul className="space-y-4 mb-8">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start">
-                        <Check className="h-5 w-5 text-accent mr-2 flex-shrink-0 mt-0.5" />
-                        <span>{feature}</span>
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mr-3 mt-0.5">
+                          <Check className="h-3 w-3 text-accent" />
+                        </div>
+                        <span className="text-foreground">{feature}</span>
                       </li>
                     ))}
                   </ul>
                   <Button
-                    className="w-full"
+                    className={`w-full ${plan.highlighted ? "bg-feature hover:bg-feature/90 text-feature-foreground" : ""}`}
                     size="lg"
                     variant={plan.highlighted ? "default" : "outline"}
                     asChild
@@ -122,12 +128,17 @@ const Pricing = () => {
 
           {/* Special Offers */}
           <div className="mt-12 max-w-3xl mx-auto">
-            <Card className="bg-accent/5 border-accent">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-2 text-center">Special Partner Discounts</h3>
-                <p className="text-muted-foreground text-center">
-                  Existing partners receive up to 75% discount on Premium Plan and 70% on Standard Plan
-                </p>
+            <Card className="bg-accent/10 border-accent/30 shadow-card">
+              <CardContent className="p-8 flex items-center gap-4">
+                <div className="icon-container-accent w-14 h-14 flex-shrink-0">
+                  <Sparkles className="h-7 w-7 text-accent" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-1">Special Partner Discounts</h3>
+                  <p className="text-muted-foreground">
+                    Existing partners receive up to 75% discount on Premium Plan and 70% on Standard Plan
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -135,21 +146,24 @@ const Pricing = () => {
       </section>
 
       {/* How to Subscribe */}
-      <section className="py-16 md:py-24 bg-muted/50">
+      <section className="py-20 md:py-28 section-light">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How to Subscribe</h2>
+          <div className="text-center mb-16">
+            <span className="inline-block text-feature font-semibold text-sm uppercase tracking-wider mb-4">
+              Getting Started
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">How to Subscribe</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Get started in four simple steps
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             {process.map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+              <div key={index} className="text-center group">
+                <div className="w-20 h-20 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center text-3xl font-bold mx-auto mb-6 group-hover:bg-feature transition-colors">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
                 <p className="text-muted-foreground">{item.description}</p>
               </div>
             ))}
@@ -158,17 +172,21 @@ const Pricing = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <Card className="bg-primary text-primary-foreground shadow-card-hover">
-            <CardContent className="p-8 md:p-12 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <Card className="section-navy shadow-card-hover overflow-hidden">
+            <CardContent className="p-8 md:p-16 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary-foreground">
                 Not Sure Which Plan is Right for You?
               </h2>
-              <p className="text-xl mb-8 text-primary-foreground/90 max-w-2xl mx-auto">
+              <p className="text-xl mb-10 text-primary-foreground/80 max-w-2xl mx-auto">
                 Contact us for a personalized consultation and we'll help you choose the best option
               </p>
-              <Button size="lg" variant="secondary" asChild>
+              <Button 
+                size="lg" 
+                className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+                asChild
+              >
                 <Link to="/contact">Schedule Consultation</Link>
               </Button>
             </CardContent>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Briefcase, Handshake, Megaphone } from "lucide-react";
+import { Briefcase, Handshake, Megaphone, ArrowRight, Mail } from "lucide-react";
 
 const Opportunities = () => {
   const jobs = [
@@ -49,11 +49,14 @@ const Opportunities = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <section className="bg-muted/50 py-16 md:py-20">
+      <section className="section-navy py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
+            <span className="inline-block text-accent font-semibold text-sm uppercase tracking-wider mb-4">
+              Join Our Journey
+            </span>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Opportunities & Announcements</h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-primary-foreground/80">
               Explore career opportunities, partnership possibilities, and stay updated with our latest news
             </p>
           </div>
@@ -61,31 +64,39 @@ const Opportunities = () => {
       </section>
 
       {/* Job Opportunities */}
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center mb-12">
-            <Briefcase className="h-10 w-10 text-primary mr-3" />
+            <div className="icon-container mr-4">
+              <Briefcase className="h-8 w-8 text-feature" />
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">Job Opportunities</h2>
           </div>
           <div className="max-w-4xl mx-auto space-y-6">
             {jobs.map((job, index) => (
-              <Card key={index} className="shadow-card hover:shadow-card-hover transition-shadow">
+              <Card 
+                key={index} 
+                className="shadow-card hover:shadow-card-hover transition-all border-2 border-transparent hover:border-feature/20 group"
+              >
                 <CardHeader>
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                     <div>
-                      <CardTitle className="text-2xl mb-2">{job.title}</CardTitle>
+                      <CardTitle className="text-2xl mb-2 group-hover:text-feature transition-colors">{job.title}</CardTitle>
                       <CardDescription className="text-base">
-                        {job.location} • {job.type}
+                        {job.location} • <span className="text-feature font-medium">{job.type}</span>
                       </CardDescription>
                     </div>
-                    <span className="text-sm text-muted-foreground whitespace-nowrap">
+                    <span className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground whitespace-nowrap">
                       Deadline: {job.deadline}
                     </span>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">{job.description}</p>
-                  <Button variant="outline">Apply Now</Button>
+                  <p className="text-muted-foreground mb-6">{job.description}</p>
+                  <Button variant="outline" className="group-hover:bg-feature group-hover:text-feature-foreground group-hover:border-feature transition-all">
+                    Apply Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -94,28 +105,47 @@ const Opportunities = () => {
       </section>
 
       {/* Partnership Opportunities */}
-      <section className="py-16 md:py-24 bg-muted/50">
+      <section className="py-20 md:py-28 section-light">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center mb-8">
-            <Handshake className="h-10 w-10 text-primary mr-3" />
+          <div className="flex items-center justify-center mb-12">
+            <div className="icon-container mr-4">
+              <Handshake className="h-8 w-8 text-feature" />
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">Partnership Opportunities</h2>
           </div>
           <div className="max-w-3xl mx-auto">
-            <Card className="shadow-card">
-              <CardContent className="p-8">
+            <Card className="shadow-card border-2 border-feature/20">
+              <CardContent className="p-8 md:p-10">
                 <h3 className="text-2xl font-semibold mb-4">Collaborate With Us</h3>
                 <p className="text-muted-foreground mb-6">
                   We're always looking for strategic partnerships with organizations that share our commitment to making a positive impact. Whether you're a funding body, consulting firm, educational institution, or community organization, we'd love to explore collaboration opportunities.
                 </p>
-                <h4 className="font-semibold text-lg mb-3">Partnership Benefits:</h4>
-                <ul className="space-y-2 text-muted-foreground mb-6">
-                  <li>• Access to our extensive network of clients and funders</li>
-                  <li>• Joint grant opportunities and project collaborations</li>
-                  <li>• Shared resources and expertise</li>
-                  <li>• Co-branded initiatives and thought leadership</li>
-                  <li>• Special discount rates on our services</li>
+                <h4 className="font-semibold text-lg mb-4 text-feature">Partnership Benefits:</h4>
+                <ul className="space-y-3 text-muted-foreground mb-8">
+                  <li className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    Access to our extensive network of clients and funders
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    Joint grant opportunities and project collaborations
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    Shared resources and expertise
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    Co-branded initiatives and thought leadership
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    Special discount rates on our services
+                  </li>
                 </ul>
-                <Button>Contact Us About Partnerships</Button>
+                <Button className="bg-feature hover:bg-feature/90 text-feature-foreground">
+                  Contact Us About Partnerships
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -123,19 +153,24 @@ const Opportunities = () => {
       </section>
 
       {/* Announcements */}
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center mb-12">
-            <Megaphone className="h-10 w-10 text-primary mr-3" />
+            <div className="icon-container mr-4">
+              <Megaphone className="h-8 w-8 text-feature" />
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">Latest Announcements</h2>
           </div>
           <div className="max-w-4xl mx-auto space-y-6">
             {announcements.map((item, index) => (
-              <Card key={index} className="shadow-card hover:shadow-card-hover transition-shadow">
+              <Card 
+                key={index} 
+                className="shadow-card hover:shadow-card-hover transition-all border-2 border-transparent hover:border-feature/20 group"
+              >
                 <CardHeader>
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
-                    <CardTitle className="text-xl">{item.title}</CardTitle>
-                    <span className="text-sm text-muted-foreground whitespace-nowrap">{item.date}</span>
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                    <CardTitle className="text-xl group-hover:text-feature transition-colors">{item.title}</CardTitle>
+                    <span className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground whitespace-nowrap">{item.date}</span>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -148,20 +183,23 @@ const Opportunities = () => {
       </section>
 
       {/* Newsletter Subscription */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+      <section className="py-20 md:py-28 section-navy">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Stay Updated</h2>
-            <p className="text-xl mb-8 text-primary-foreground/90">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-foreground/10 mb-6">
+              <Mail className="h-8 w-8 text-accent" />
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Stay Updated</h2>
+            <p className="text-xl mb-10 text-primary-foreground/80">
               Subscribe to our newsletter for the latest job openings, partnership opportunities, and company news
             </p>
-            <form className="flex flex-col sm:flex-row gap-4">
+            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <Input
                 type="email"
                 placeholder="Enter your email"
                 className="flex-1 bg-primary-foreground text-foreground"
               />
-              <Button type="submit" variant="secondary" size="lg">
+              <Button type="submit" className="bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
                 Subscribe
               </Button>
             </form>
