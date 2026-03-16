@@ -1,50 +1,68 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Briefcase, Handshake, Megaphone, ArrowRight, Mail } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface Job {
+  id: string;
+  title: string;
+  location: string | null;
+  department: string | null;
+  description: string;
+  requirements: string | null;
+  deadline: string | null;
+  status: string;
+  application_instructions: string | null;
+}
+
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  publish_date: string | null;
+  priority_level: string | null;
+  target_audience: string | null;
+  expiration_date: string | null;
+}
 
 const Opportunities = () => {
-  const jobs = [
-    {
-      title: "Senior Grant Writer",
-      location: "Glen Waverley, VIC / Remote",
-      type: "Full-time",
-      description: "Experienced grant writer to lead proposal development for non-profit and government sectors.",
-      deadline: "March 31, 2025",
-    },
-    {
-      title: "Project Manager - Grant Implementation",
-      location: "Melbourne, VIC",
-      type: "Full-time",
-      description: "Manage multiple grant-funded projects ensuring successful delivery and stakeholder satisfaction.",
-      deadline: "April 15, 2025",
-    },
-    {
-      title: "Capacity Building Consultant",
-      location: "Remote",
-      type: "Contract",
-      description: "Provide training and mentorship to organizations developing their grant management capabilities.",
-      deadline: "Rolling",
-    },
-  ];
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
 
-  const announcements = [
-    {
-      title: "New Partnership with Australian Charities and Not-for-profits Commission",
-      date: "March 1, 2025",
-      description: "We're excited to announce our collaboration to support registered charities nationwide.",
-    },
-    {
-      title: "Webinar Series: Grant Writing Fundamentals",
-      date: "February 20, 2025",
-      description: "Join our free monthly webinar series starting April 2025. Register now for early access.",
-    },
-    {
-      title: "Success Story: $2M Infrastructure Grant Secured",
-      date: "February 10, 2025",
-      description: "Celebrating with our client who secured major funding for community facility expansion.",
-    },
-  ];
+  useEffect(() => {
+    const fetchJobs = async () => {
+      const { data, error } = await supabase
+        .from("job_opportunities")
+        .select("*")
+        .eq("status", "open")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setJobs(data);
+      }
+      setLoadingJobs(false);
+    };
+
+    const fetchAnnouncements = async () => {
+      const { data, error } = await supabase
+        .from("announcements")
+        .select("*")
+        .order("publish_date", { ascending: false });
+
+      if (!error && data) {
+        setAnnouncements(data);
+      }
+      setLoadingAnnouncements(false);
+    };
+
+    fetchJobs();
+    fetchAnnouncements();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -73,33 +91,58 @@ const Opportunities = () => {
             <h2 className="text-3xl md:text-4xl font-bold">Job Opportunities</h2>
           </div>
           <div className="max-w-4xl mx-auto space-y-6">
-            {jobs.map((job, index) => (
-              <Card 
-                key={index} 
-                className="shadow-card hover:shadow-card-hover transition-all border-2 border-transparent hover:border-feature/20 group"
-              >
-                <CardHeader>
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                    <div>
-                      <CardTitle className="text-2xl mb-2 group-hover:text-feature transition-colors">{job.title}</CardTitle>
-                      <CardDescription className="text-base">
-                        {job.location} • <span className="text-feature font-medium">{job.type}</span>
-                      </CardDescription>
-                    </div>
-                    <span className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground whitespace-nowrap">
-                      Deadline: {job.deadline}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-6">{job.description}</p>
-                  <Button variant="outline" className="group-hover:bg-feature group-hover:text-feature-foreground group-hover:border-feature transition-all">
-                    Apply Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+            {loadingJobs ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="shadow-card">
+                  <CardHeader>
+                    <Skeleton className="h-6 w-2/3 mb-2" />
+                    <Skeleton className="h-4 w-1/3" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : jobs.length === 0 ? (
+              <Card className="shadow-card">
+                <CardContent className="p-8 text-center text-muted-foreground">
+                  No open positions at the moment. Check back soon!
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              jobs.map((job) => (
+                <Card
+                  key={job.id}
+                  className="shadow-card hover:shadow-card-hover transition-all border-2 border-transparent hover:border-feature/20 group"
+                >
+                  <CardHeader>
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                      <div>
+                        <CardTitle className="text-2xl mb-2 group-hover:text-feature transition-colors">
+                          {job.title}
+                        </CardTitle>
+                        <CardDescription className="text-base">
+                          {job.location || "Remote"} {job.department && `• ${job.department}`}
+                        </CardDescription>
+                      </div>
+                      {job.deadline && (
+                        <span className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground whitespace-nowrap">
+                          Deadline: {new Date(job.deadline).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground mb-6">{job.description}</p>
+                    <Button variant="outline" className="group-hover:bg-feature group-hover:text-feature-foreground group-hover:border-feature transition-all">
+                      Apply Now
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -118,30 +161,22 @@ const Opportunities = () => {
               <CardContent className="p-8 md:p-10">
                 <h3 className="text-2xl font-semibold mb-4">Collaborate With Us</h3>
                 <p className="text-muted-foreground mb-6">
-                  We're always looking for strategic partnerships with organizations that share our commitment to making a positive impact. Whether you're a funding body, consulting firm, educational institution, or community organization, we'd love to explore collaboration opportunities.
+                  We're always looking for strategic partnerships with organizations that share our commitment to making a positive impact.
                 </p>
                 <h4 className="font-semibold text-lg mb-4 text-feature">Partnership Benefits:</h4>
                 <ul className="space-y-3 text-muted-foreground mb-8">
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                    Access to our extensive network of clients and funders
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                    Joint grant opportunities and project collaborations
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                    Shared resources and expertise
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                    Co-branded initiatives and thought leadership
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                    Special discount rates on our services
-                  </li>
+                  {[
+                    "Access to our extensive network of clients and funders",
+                    "Joint grant opportunities and project collaborations",
+                    "Shared resources and expertise",
+                    "Co-branded initiatives and thought leadership",
+                    "Special discount rates on our services",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
                 </ul>
                 <Button className="bg-feature hover:bg-feature/90 text-feature-foreground">
                   Contact Us About Partnerships
@@ -162,27 +197,53 @@ const Opportunities = () => {
             <h2 className="text-3xl md:text-4xl font-bold">Latest Announcements</h2>
           </div>
           <div className="max-w-4xl mx-auto space-y-6">
-            {announcements.map((item, index) => (
-              <Card 
-                key={index} 
-                className="shadow-card hover:shadow-card-hover transition-all border-2 border-transparent hover:border-feature/20 group"
-              >
-                <CardHeader>
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                    <CardTitle className="text-xl group-hover:text-feature transition-colors">{item.title}</CardTitle>
-                    <span className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground whitespace-nowrap">{item.date}</span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{item.description}</p>
+            {loadingAnnouncements ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="shadow-card">
+                  <CardHeader>
+                    <Skeleton className="h-5 w-3/4 mb-2" />
+                    <Skeleton className="h-3 w-1/4" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-4 w-full" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : announcements.length === 0 ? (
+              <Card className="shadow-card">
+                <CardContent className="p-8 text-center text-muted-foreground">
+                  No announcements at the moment.
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              announcements.map((item) => (
+                <Card
+                  key={item.id}
+                  className="shadow-card hover:shadow-card-hover transition-all border-2 border-transparent hover:border-feature/20 group"
+                >
+                  <CardHeader>
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                      <CardTitle className="text-xl group-hover:text-feature transition-colors">
+                        {item.title}
+                      </CardTitle>
+                      {item.publish_date && (
+                        <span className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground whitespace-nowrap">
+                          {new Date(item.publish_date).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">{item.content}</p>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </section>
 
-      {/* Newsletter Subscription */}
+      {/* Newsletter */}
       <section className="py-20 md:py-28 section-navy">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
@@ -194,11 +255,7 @@ const Opportunities = () => {
               Subscribe to our newsletter for the latest job openings, partnership opportunities, and company news
             </p>
             <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 bg-primary-foreground text-foreground"
-              />
+              <Input type="email" placeholder="Enter your email" className="flex-1 bg-primary-foreground text-foreground" />
               <Button type="submit" className="bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
                 Subscribe
               </Button>
