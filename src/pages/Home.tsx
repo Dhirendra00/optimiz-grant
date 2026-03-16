@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,29 +19,28 @@ import {
   Zap,
 } from "lucide-react";
 
+const iconMap: Record<string, React.ReactNode> = {
+  FileText: <FileText className="h-8 w-8" />,
+  Target: <Target className="h-8 w-8" />,
+  Users: <Users className="h-8 w-8" />,
+  TrendingUp: <TrendingUp className="h-8 w-8" />,
+};
+
 const Home = () => {
-  const services = [
-    {
-      icon: <FileText className="h-8 w-8" />,
-      title: "Grant Writing",
-      description: "Expert proposal writing to maximize your funding success",
-    },
-    {
-      icon: <Target className="h-8 w-8" />,
-      title: "Grant Strategy",
-      description: "Strategic planning to identify and secure the right grants",
-    },
-    {
-      icon: <Users className="h-8 w-8" />,
-      title: "Capacity Building",
-      description: "Strengthen your organization's grant management capabilities",
-    },
-    {
-      icon: <TrendingUp className="h-8 w-8" />,
-      title: "Project Management",
-      description: "Professional oversight ensuring successful project delivery",
-    },
-  ];
+  const [services, setServices] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const { data } = await supabase
+        .from("service_descriptions")
+        .select("id, name, short_description, icon")
+        .order("display_order", { ascending: true })
+        .limit(4);
+
+      if (data) setServices(data);
+    };
+    fetchServices();
+  }, []);
 
   const stats = [
     { label: "Success Rate", value: "95%", icon: <Award className="h-6 w-6" /> },
@@ -49,35 +50,17 @@ const Home = () => {
   ];
 
   const benefits = [
-    {
-      icon: <Shield className="h-6 w-6 text-feature" />,
-      text: "Proven track record with 95% success rate",
-    },
-    {
-      icon: <Sparkles className="h-6 w-6 text-feature" />,
-      text: "Customized solutions tailored to your needs",
-    },
-    {
-      icon: <Globe className="h-6 w-6 text-feature" />,
-      text: "Global expertise with local insights",
-    },
-    {
-      icon: <BarChart className="h-6 w-6 text-feature" />,
-      text: "Measurable results and transparent reporting",
-    },
-    {
-      icon: <Award className="h-6 w-6 text-feature" />,
-      text: "Expert team with decades of experience",
-    },
-    {
-      icon: <Zap className="h-6 w-6 text-feature" />,
-      text: "End-to-end support from strategy to delivery",
-    },
+    { icon: <Shield className="h-6 w-6 text-feature" />, text: "Proven track record with 95% success rate" },
+    { icon: <Sparkles className="h-6 w-6 text-feature" />, text: "Customized solutions tailored to your needs" },
+    { icon: <Globe className="h-6 w-6 text-feature" />, text: "Global expertise with local insights" },
+    { icon: <BarChart className="h-6 w-6 text-feature" />, text: "Measurable results and transparent reporting" },
+    { icon: <Award className="h-6 w-6 text-feature" />, text: "Expert team with decades of experience" },
+    { icon: <Zap className="h-6 w-6 text-feature" />, text: "End-to-end support from strategy to delivery" },
   ];
 
   const trustedBy = [
     "Non-Profit Organizations",
-    "Educational Institutions", 
+    "Educational Institutions",
     "Healthcare Providers",
     "Community Groups",
     "Research Institutes",
@@ -87,45 +70,27 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative section-navy py-20 md:py-32 overflow-hidden">
-        {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-feature/20 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
         </div>
-        
         <div className="container mx-auto px-4 relative">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-primary-foreground/10 rounded-full px-4 py-2 mb-6 backdrop-blur-sm border border-primary-foreground/20">
               <Sparkles className="h-4 w-4 text-accent" />
-              <span className="text-sm font-medium text-primary-foreground/90">
-                Trusted Grant Consulting Partner
-              </span>
+              <span className="text-sm font-medium text-primary-foreground/90">Trusted Grant Consulting Partner</span>
             </div>
-            
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              From Pipeline{" "}
-              <span className="text-gradient-accent">to Profit</span>
+              From Pipeline <span className="text-gradient-accent">to Profit</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-foreground/80 max-w-2xl mx-auto">
               Your trusted partner in grant consulting, strategy development, and project implementation
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-base px-8"
-                asChild
-              >
-                <Link to="/register">
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+              <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-base px-8" asChild>
+                <Link to="/register">Get Started <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-semibold text-base"
-                asChild
-              >
+              <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-semibold text-base" asChild>
                 <Link to="/contact">Book Consultation</Link>
               </Button>
             </div>
@@ -133,7 +98,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trusted By Marquee */}
+      {/* Trusted By */}
       <section className="py-6 bg-muted/50 border-y border-border">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
@@ -149,30 +114,20 @@ const Home = () => {
       <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="inline-block text-feature font-semibold text-sm uppercase tracking-wider mb-4">
-              What We Offer
-            </span>
+            <span className="inline-block text-feature font-semibold text-sm uppercase tracking-wider mb-4">What We Offer</span>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Our Services</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive grant solutions to help your organization thrive
-            </p>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Comprehensive grant solutions to help your organization thrive</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, index) => (
-              <Card 
-                key={index} 
-                className="group shadow-card hover:shadow-card-hover transition-all duration-300 border-2 border-transparent hover:border-feature/20"
-              >
+            {services.map((service) => (
+              <Card key={service.id} className="group shadow-card hover:shadow-card-hover transition-all duration-300 border-2 border-transparent hover:border-feature/20">
                 <CardContent className="pt-8 pb-6 px-6">
                   <div className="icon-container w-14 h-14 mb-6 text-feature group-hover:scale-110 transition-transform">
-                    {service.icon}
+                    {service.icon && iconMap[service.icon] ? iconMap[service.icon] : <FileText className="h-8 w-8" />}
                   </div>
-                  <h3 className="text-xl font-semibold mb-3">{service.title}</h3>
-                  <p className="text-muted-foreground mb-4">{service.description}</p>
-                  <Link 
-                    to="/services" 
-                    className="inline-flex items-center text-feature font-medium text-sm hover:gap-2 transition-all"
-                  >
+                  <h3 className="text-xl font-semibold mb-3">{service.name}</h3>
+                  <p className="text-muted-foreground mb-4">{service.short_description || ""}</p>
+                  <Link to="/services" className="inline-flex items-center text-feature font-medium text-sm hover:gap-2 transition-all">
                     Learn more <ArrowRight className="ml-1 h-4 w-4" />
                   </Link>
                 </CardContent>
@@ -192,15 +147,9 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <span className="inline-block text-feature font-semibold text-sm uppercase tracking-wider mb-4">
-                Why Choose Us
-              </span>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                All your grant processes in one place
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8">
-                Partner with experts who deliver results. We provide real-time reporting you can trust, with comprehensive support at every step.
-              </p>
+              <span className="inline-block text-feature font-semibold text-sm uppercase tracking-wider mb-4">Why Choose Us</span>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">All your grant processes in one place</h2>
+              <p className="text-lg text-muted-foreground mb-8">Partner with experts who deliver results. We provide real-time reporting you can trust, with comprehensive support at every step.</p>
               <div className="grid sm:grid-cols-2 gap-4">
                 {benefits.map((benefit, index) => (
                   <div key={index} className="flex items-start gap-3">
@@ -210,14 +159,9 @@ const Home = () => {
                 ))}
               </div>
             </div>
-            
-            {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
               {stats.map((stat, index) => (
-                <div 
-                  key={index} 
-                  className="stats-card"
-                >
+                <div key={index} className="stats-card">
                   <div className="flex justify-center mb-3 text-accent">{stat.icon}</div>
                   <div className="text-4xl md:text-5xl font-bold mb-2">{stat.value}</div>
                   <div className="text-sm text-primary-foreground/70">{stat.label}</div>
@@ -228,7 +172,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Testimonial Section */}
+      {/* Testimonial */}
       <section className="py-20 md:py-28 bg-feature text-feature-foreground">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -249,7 +193,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Lead Capture Banner */}
+      {/* Lead Capture */}
       <section className="py-20 md:py-28">
         <div className="container mx-auto px-4">
           <Card className="shadow-card-hover border-2 border-border overflow-hidden">
@@ -257,25 +201,13 @@ const Home = () => {
               <div className="grid lg:grid-cols-2">
                 <div className="p-8 md:p-12 flex flex-col justify-center">
                   <BarChart className="h-12 w-12 text-feature mb-6" />
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                    Ready to Get More Funding?
-                  </h2>
-                  <p className="text-lg text-muted-foreground mb-8">
-                    Join hundreds of organizations that have increased their funding with our expert guidance
-                  </p>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get More Funding?</h2>
+                  <p className="text-lg text-muted-foreground mb-8">Join hundreds of organizations that have increased their funding with our expert guidance</p>
                   <form className="flex flex-col sm:flex-row gap-4">
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="flex-1"
-                    />
-                    <Button type="submit" className="bg-accent text-accent-foreground hover:bg-accent/90">
-                      Subscribe
-                    </Button>
+                    <Input type="email" placeholder="Enter your email" className="flex-1" />
+                    <Button type="submit" className="bg-accent text-accent-foreground hover:bg-accent/90">Subscribe</Button>
                   </form>
-                  <p className="text-sm text-muted-foreground mt-4">
-                    Get exclusive insights and grant opportunities delivered to your inbox
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-4">Get exclusive insights and grant opportunities delivered to your inbox</p>
                 </div>
                 <div className="hidden lg:block bg-hero-gradient" />
               </div>
@@ -284,29 +216,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="py-20 md:py-28 section-navy">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            Start Your Success Story Today
-          </h2>
-          <p className="text-xl mb-10 text-primary-foreground/80 max-w-2xl mx-auto">
-            Let's work together to secure the funding your organization deserves
-          </p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Start Your Success Story Today</h2>
+          <p className="text-xl mb-10 text-primary-foreground/80 max-w-2xl mx-auto">Let's work together to secure the funding your organization deserves</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-base px-8"
-              asChild
-            >
+            <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-base px-8" asChild>
               <Link to="/register">Register Your Organization</Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-              asChild
-            >
+            <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
               <Link to="/contact">Contact Us</Link>
             </Button>
           </div>
